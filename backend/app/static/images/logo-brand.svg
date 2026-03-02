@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50" role="img" aria-label="Spendly">
+  <defs>
+    <!-- Premium gradients -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="35%" stop-color="#8b5cf6"/>
+      <stop offset="70%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#f472b6" stop-opacity="0.4"/>
+    </linearGradient>
+    
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    
+    <!-- Glow filter -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Icon: Stylized wallet with sparkle effect -->
+  <g transform="translate(6, 10)" filter="url(#shadow)">
+    <!-- Outer glow circle -->
+    <circle cx="15" cy="15" r="18" fill="url(#glowGrad)" opacity="0.2"/>
+    
+    <!-- Main wallet shape -->
+    <g transform="translate(0, 0)">
+      <!-- Wallet body with gradient -->
+      <path d="M 5 10 L 25 10 Q 28 10 28 13 L 28 23 Q 28 26 25 26 L 5 26 Q 2 26 2 23 L 2 13 Q 2 10 5 10 Z" 
+            fill="url(#primaryGrad)" opacity="0.95"/>
+      
+      <!-- Card accent on top -->
+      <rect x="4" y="6" width="18" height="11" rx="2" fill="#ffffff" opacity="0.15"/>
+      
+      <!-- Sparkle/AI indicator -->
+      <g transform="translate(15, 18)">
+        <!-- Analytics bars -->
+        <rect x="-6" y="2" width="2.5" height="6" rx="1.2" fill="#ffffff" opacity="0.9"/>
+        <rect x="-2" y="-1" width="2.5" height="9" rx="1.2" fill="#ffffff" opacity="0.95"/>
+        <rect x="2" y="0" width="2.5" height="8" rx="1.2" fill="#ffffff"/>
+        <rect x="6" y="-2" width="2.5" height="10" rx="1.2" fill="#ffffff" opacity="0.9"/>
+      </g>
+    </g>
+    
+    <!-- Premium AI badge -->
+    <g transform="translate(24, 24)">
+      <circle r="7" fill="url(#accentGrad)" filter="url(#glow)"/>
+      <text x="0" y="3.5" text-anchor="middle" font-family="Inter, sans-serif" 
+            font-weight="800" font-size="9" fill="#0a0a0a">₹</text>
+    </g>
+  </g>
+  
+  <!-- Premium Wordmark with better spacing -->
+  <g transform="translate(52, 32)">
+    <text font-family="'Inter', 'Segoe UI', system-ui, sans-serif" 
+          font-size="22" 
+          font-weight="900" 
+          fill="url(#primaryGrad)" 
+          letter-spacing="-0.8"
+          filter="url(#shadow)">
+      Spendly
+    </text>
+  </g>
+  
+  <!-- Subtle underline accent -->
+  <line x1="52" y1="38" x2="145" y2="38" 
+        stroke="url(#primaryGrad)" 
+        stroke-width="1.5" 
+        opacity="0.3" 
+        stroke-linecap="round"/>
+</svg>

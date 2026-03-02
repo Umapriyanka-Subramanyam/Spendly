@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Expense - Spendly{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h1 class="display-6 fw-bold mb-2">
+            <i class="fas fa-plus-circle text-primary me-2"></i> Add Expense
+        </h1>
+        <p class="lead text-muted">Record and split expenses with your group</p>
+    </div>
+</div>
+
+<!-- Form Wizard -->
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Progress Steps -->
+        <div class="progress mb-4" style="height: 8px;">
+            <div class="progress-bar bg-primary" id="progress-bar" style="width: 33.33%;" role="progressbar"></div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-4">
+            <div class="text-center">
+                <div class="badge bg-primary text-white p-2 mb-2" style="font-size: 1.1rem;">1</div>
+                <div class="small fw-bold">Details</div>
+            </div>
+            <div class="text-center">
+                <div class="badge bg-secondary text-white p-2 mb-2" style="font-size: 1.1rem;">2</div>
+                <div class="small fw-bold">Payer</div>
+            </div>
+            <div class="text-center">
+                <div class="badge bg-secondary text-white p-2 mb-2" style="font-size: 1.1rem;">3</div>
+                <div class="small fw-bold">Split</div>
+            </div>
+        </div>
+
+        <form id="expenseForm" method="POST" action="{{ url_for('expenses.add_expense') }}">
+            <!-- Step 1: Details -->
+            <div class="wizard-step" data-step="1" id="step-1">
+                <div class="card spendly-card p-4 mb-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-receipt text-primary me-2"></i> Expense Details
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control input-glow" id="description" name="description" placeholder="e.g., Dinner at restaurant" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Amount (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent text-muted">₹</span>
+                            <input type="number" step="0.01" class="form-control input-glow" name="amount" id="amount" placeholder="0.00" required>
+                        </div>
+                        <small class="text-muted">₹ <span id="amount-formatted">0.00</span></small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <div class="d-flex flex-wrap gap-2" id="category-buttons">
+                            {% for cat in categories.keys() %}
+                            <input type="radio" class="btn-check" name="category" id="cat-{{ cat }}" value="{{ cat }}" {% if cat == 'Other' %}checked{% endif %}>
+                            <label class="btn btn-category" for="cat-{{ cat }}">
+                                <i class="fas fa-tag me-1"></i> {{ cat }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control input-glow" id="expense_date" name="expense_date" value="{{ today }}" required>
+                            <button type="button" class="btn btn-outline-light btn-sm" id="dateShortcut_today" onclick="event.preventDefault()">Today</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" id="dateShortcut_yesterday" onclick="event.preventDefault()">Yesterday</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" id="dateShortcut_lastweek" onclick="event.preventDefault()">Last Week</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control input-glow" name="notes" rows="2" placeholder="Add any notes..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-light" onclick="history.back()">Cancel</button>
+                        <button type="button" class="btn btn-primary ms-auto" id="nextBtn" onclick="goToStep(2)">Next: Who Paid?</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Who Paid -->
+            <div class="wizard-step" data-step="2" id="step-2" style="display: none;">
+                <div class="card spendly-card p-4 mb-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-user-check text-primary me-2"></i> Who Paid?
+                    </h5>
+
+                    <div class="mb-4">
+                        <label class="form-label">Select the member who paid</label>
+                        <select class="form-select" id="paid_by_member_id" name="paid_by_member_id" required>
+                            <option value="">-- Select a member --</option>
+                            {% for member in members %}
+                            <option value="{{ member.id }}" data-member-name="{{ member.name }}">{{ member.name }} ({{ member.email }})</option>
+                            {% endfor %}
+                        </select>
+                        {% if not members %}
+                        <p class="text-warning mt-2"><i class="fas fa-exclamation-triangle me-2"></i> No members yet. <a href="{{ url_for('members.members_list') }}">Add members first.</a></p>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-light" id="prevBtn" onclick="goToStep(1)">Back</button>
+                        <button type="button" class="btn btn-primary ms-auto" id="nextBtn" onclick="goToStep(3)">Next: Split</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Split -->
+            <div class="wizard-step" data-step="3" id="step-3" style="display: none;">
+                <div class="card spendly-card p-4 mb-4">
+                    <h5 class="mb-4">
+                        <i class="fas fa-share-alt text-primary me-2"></i> Split Between
+                    </h5>
+
+                    <div class="mb-4">
+                        <label class="form-label">Split Type</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="split_type" id="split-equal" value="equal" checked onchange="updateSplitPreview()">
+                            <label class="btn btn-outline-light" for="split-equal">Equal</label>
+
+                            <input type="radio" class="btn-check" name="split_type" id="split-exact" value="exact" onchange="updateSplitPreview()">
+                            <label class="btn btn-outline-light" for="split-exact">Exact Amount</label>
+
+                            <input type="radio" class="btn-check" name="split_type" id="split-pct" value="percentage" onchange="updateSplitPreview()">
+                            <label class="btn btn-outline-light" for="split-pct">Percentage</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Select members to split with</label>
+                        <div id="member-checkboxes" class="d-flex flex-column gap-2">
+                            {% for member in members %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="split_members" id="member-{{ member.id }}" value="{{ member.id }}" 
+                                       data-member-name="{{ member.name }}" onchange="updateSplitPreview()">
+                                <label class="form-check-label" for="member-{{ member.id }}">
+                                    {{ member.name }}
+                                </label>
+                                <input type="hidden" name="split_amount_{{ member.id }}" value="0" id="split-amount-{{ member.id }}">
+                                <input type="hidden" name="split_pct_{{ member.id }}" value="0" id="split-pct-{{ member.id }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Live Calculation Display -->
+                    <div class="card spendly-card border-primary p-3 mb-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-calculator text-primary me-2"></i> Split Breakdown
+                        </h6>
+                        <div id="splitPreview" class="d-flex flex-column gap-2">
+                            <p class="text-muted small">Select members and split type to see breakdown</p>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-info btn-sm mb-3" onclick="distributeEqual()">
+                        <i class="fas fa-divide me-1"></i> Distribute Equally
+                    </button>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-light" id="prevBtn" onclick="goToStep(2)">Back</button>
+                        <button type="button" class="btn btn-success ms-auto" id="submitBtn" onclick="submitExpenseForm()" style="display: inline-block;">
+                            <i class="fas fa-save me-2"></i> Save Expense
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/expenses.js') }}"></script>
+{% endblock %}
+

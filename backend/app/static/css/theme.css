@@ -1,0 +1,436 @@
+/* ========================================
+   Spendly Dark Theme with Glassmorphism
+   ======================================== */
+
+:root {
+  /* Dark Theme Colors */
+  --spendly-bg: #0a0e27;
+  --spendly-bg-secondary: #0f1429;
+  --spendly-card: #1e1b4b;
+  --spendly-card-overlay: rgba(255, 255, 255, 0.05);
+  --spendly-card-border: rgba(255, 255, 255, 0.08);
+
+  /* Text Colors */
+  --spendly-text: #f1f5f9;
+  --spendly-text-secondary: #cbd5e1;
+  --spendly-text-muted: #94a3b8;
+
+  /* Accent Colors */
+  --spendly-primary: #6366f1;
+  --spendly-primary-hover: #818cf8;
+  --spendly-primary-dark: #4f46e5;
+
+  --spendly-success: #10b981;
+  --spendly-warning: #f59e0b;
+  --spendly-danger: #ef4444;
+
+  /* Shadows & Effects */
+  --glass-blur: 12px;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.5);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ========== Base Styles ========== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body.spendly-dark {
+  background-color: var(--spendly-bg);
+  color: var(--spendly-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ========== Scrollbar ========== */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--spendly-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--spendly-primary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--spendly-primary-hover);
+}
+
+/* ========== Navbar - Glassmorphism ========== */
+
+.spendly-navbar-glass {
+  background: linear-gradient(180deg,
+      rgba(37, 43, 72, 0.6) 0%,
+      rgba(37, 43, 72, 0.4) 100%);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--spendly-card-border);
+  box-shadow: var(--shadow-md);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+  transition: transform var(--transition-base);
+}
+
+.navbar-brand:hover {
+  transform: scale(1.05);
+}
+
+.brand-emoji {
+  font-size: 1.4rem;
+  margin-right: 0.4rem;
+}
+
+/* ========== Cards - Glassmorphism ========== */
+
+.card,
+.spendly-card {
+  background: linear-gradient(135deg,
+      var(--spendly-card) 0%,
+      rgba(31, 27, 75, 0.5) 100%);
+  background-color: var(--spendly-card);
+  border: 1px solid var(--spendly-card-border);
+  border-radius: 12px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.card:hover,
+.spendly-card:hover {
+  background: linear-gradient(135deg,
+      rgba(42, 39, 90, 0.7) 0%,
+      rgba(31, 27, 75, 0.6) 100%);
+  border-color: var(--spendly-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+/* ========== Main Layout ========== */
+
+.spendly-main {
+  min-height: calc(100vh - 200px);
+  padding-bottom: 3rem;
+}
+
+.spendly-footer {
+  background: linear-gradient(180deg,
+      rgba(37, 43, 72, 0.4) 0%,
+      rgba(15, 20, 41, 0.6) 100%);
+  border-top: 1px solid var(--spendly-card-border);
+}
+
+/* ========== Buttons ========== */
+
+.btn-primary {
+  background-color: var(--spendly-primary);
+  border-color: var(--spendly-primary);
+  color: white;
+  font-weight: 500;
+  transition: all var(--transition-base);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--spendly-primary-hover);
+  border-color: var(--spendly-primary-hover);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-outline-light {
+  color: var(--spendly-text);
+  border-color: rgba(255, 255, 255, 0.3);
+  transition: all var(--transition-base);
+}
+
+.btn-outline-light:hover,
+.btn-outline-light:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--spendly-primary);
+  color: var(--spendly-primary);
+}
+
+/* ========== Forms ========== */
+
+.form-control,
+.form-select {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.03) 100%);
+  border: 1px solid var(--spendly-card-border);
+  color: var(--spendly-text);
+  transition: all var(--transition-base);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.05) 100%);
+  border-color: var(--spendly-primary);
+  color: var(--spendly-text);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+}
+
+.form-control::placeholder {
+  color: var(--spendly-text-muted);
+}
+
+.form-label {
+  color: var(--spendly-text-secondary);
+  font-weight: 500;
+}
+
+option {
+  background-color: var(--spendly-bg-secondary);
+  color: var(--spendly-text);
+}
+
+/* ========== Toggle Buttons (Period/Date Range) ========== */
+.btn-check:checked+.btn-outline-light {
+  background: linear-gradient(135deg, var(--spendly-primary) 0%, var(--spendly-primary-hover) 100%) !important;
+  border-color: var(--spendly-primary) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.4) !important;
+}
+
+/* ========== Avatar ========== */
+
+.spendly-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--spendly-primary) 0%, var(--spendly-primary-hover) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+/* ========== Category Buttons ========== */
+
+.btn-category {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 100%);
+  border: 2px solid var(--spendly-card-border);
+  color: var(--spendly-text);
+  border-radius: 10px;
+  transition: all var(--transition-base);
+  font-weight: 500;
+}
+
+.btn-category:hover {
+  background: linear-gradient(135deg,
+      rgba(99, 102, 241, 0.2) 0%,
+      rgba(99, 102, 241, 0.1) 100%);
+  border-color: var(--spendly-primary);
+  transform: translateY(-2px);
+}
+
+.btn-category.active {
+  background: linear-gradient(135deg, var(--spendly-primary) 0%, var(--spendly-primary-hover) 100%);
+  border-color: var(--spendly-primary);
+  color: white;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+}
+
+/* ========== Text Colors ========== */
+
+.text-muted {
+  color: var(--spendly-text-muted) !important;
+}
+
+.text-success {
+  color: var(--spendly-success) !important;
+}
+
+.text-warning {
+  color: var(--spendly-warning) !important;
+}
+
+.text-danger {
+  color: var(--spendly-danger) !important;
+}
+
+/* ========== Headings ========== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--spendly-text);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+p {
+  color: var(--spendly-text-secondary);
+}
+
+/* ========== Loading Animations ========== */
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.05) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Ripple effect for buttons */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  background: rgba(255, 255, 255, 0.18);
+  animation: ripple 600ms linear;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Input focus glow */
+.input-glow:focus {
+  box-shadow: 0 6px 30px rgba(99, 102, 241, 0.15);
+  border-color: var(--spendly-primary);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: 8px;
+  min-height: 12px;
+}
+
+/* ========== Toast Notifications ========== */
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+.toast {
+  background: linear-gradient(135deg,
+      var(--spendly-card) 0%,
+      rgba(31, 27, 75, 0.5) 100%);
+  border: 1px solid var(--spendly-card-border);
+  border-radius: 12px;
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-md);
+}
+
+.toast.success {
+  border-left: 4px solid var(--spendly-success);
+}
+
+.toast.danger {
+  border-left: 4px solid var(--spendly-danger);
+}
+
+.toast.warning {
+  border-left: 4px solid var(--spendly-warning);
+}
+
+/* ========== Utility Classes ========== */
+
+.spendly-shadow {
+  box-shadow: var(--shadow-lg);
+}
+
+.spendly-blur {
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.spendly-gradient {
+  background: linear-gradient(135deg, var(--spendly-primary) 0%, var(--spendly-primary-hover) 100%);
+}
+
+/* ========== Responsive Design ========== */
+
+@media (max-width: 768px) {
+  .container-lg {
+    padding: 0 1rem;
+  }
+
+  .card {
+    border-radius: 8px;
+  }
+
+  .btn-category {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}

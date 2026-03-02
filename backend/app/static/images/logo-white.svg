@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Spendly white logo">
+  <rect x="24" y="24" width="464" height="464" rx="64" fill="#0b1220" opacity="0.7" />
+  <g transform="translate(88,112)">
+    <rect x="0" y="40" width="336" height="216" rx="32" fill="#ffffff" opacity="0.04" />
+    <rect x="0" y="12" width="240" height="72" rx="22" fill="#ffffff" opacity="0.08" />
+    <g transform="translate(46,84)" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round">
+      <path d="M14 0v44" opacity="0.95"/>
+      <path d="M46 8v40" opacity="0.95"/>
+      <path d="M78 0v44" opacity="0.95"/>
+      <path d="M14 22h68" opacity="0.7"/>
+      <circle cx="14" cy="0" r="7" fill="#ffffff" stroke="none"/>
+    </g>
+    <g transform="translate(260,152)">
+      <circle cx="0" cy="0" r="34" fill="#ffffff" opacity="0.12"/>
+      <text x="0" y="10" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="34" fill="#ffffff">₹</text>
+    </g>
+    <polyline points="44,176 112,104 184,152 272,64" fill="none" stroke="#ffffff" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
+    <circle cx="272" cy="64" r="10" fill="#ffffff" opacity="0.95"/>
+  </g>
+</svg>

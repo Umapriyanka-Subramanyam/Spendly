@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account - Spendly{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-6 fw-bold mb-0">Settings</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Settings Sidebar -->
+    <div class="col-md-3">
+        <div class="list-group list-group-flush rounded bg-dark border border-secondary shadow-sm">
+            <a href="{{ url_for('settings.profile') }}"
+                class="list-group-item list-group-item-action bg-transparent text-light border-secondary">
+                <i class="fas fa-user fa-fw me-2"></i> Profile
+            </a>
+            <a href="{{ url_for('settings.preferences') }}"
+                class="list-group-item list-group-item-action bg-transparent text-light border-secondary">
+                <i class="fas fa-sliders-h fa-fw me-2"></i> Preferences
+            </a>
+            <a href="{{ url_for('settings.change_password') }}"
+                class="list-group-item list-group-item-action bg-transparent text-light border-secondary">
+                <i class="fas fa-lock fa-fw me-2"></i> Password
+            </a>
+            <a href="{{ url_for('settings.delete_account') }}"
+                class="list-group-item list-group-item-action active bg-danger text-white border-danger">
+                <i class="fas fa-trash fa-fw me-2"></i> Account
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <div class="card spendly-card p-4 border-danger">
+            <h5 class="mb-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Delete Account</h5>
+            <div class="alert alert-danger bg-transparent border-danger text-danger">
+                <strong>Warning:</strong> This action is permanent and cannot be undone. All your expenses, groups, and
+                settlements will be permanently deleted.
+            </div>
+
+            <form action="{{ url_for('settings.delete_account') }}" method="POST" class="mt-4">
+                <div class="mb-4">
+                    <label class="form-label text-light">Confirm your password to proceed:</label>
+                    <input type="password" class="form-control bg-dark border-secondary text-light" name="password"
+                        required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Are you absolutely sure you want to delete your account? This cannot be undone!')">
+                    <i class="fas fa-trash-alt me-2"></i> Permanently Delete Account
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Expense Details - Spendly{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('expenses.list_expenses') }}" class="btn btn-outline-light btn-sm">
+        <i class="fas fa-arrow-left me-2"></i> Back to Expenses
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Expense Header -->
+    <div class="col-lg-8">
+        <div class="card spendly-card p-5">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h2 class="mb-2">{{ expense.description }}</h2>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-2"></i> {{ expense.created_at.strftime('%b %d, %Y') }}
+                        </small>
+                        <span class="badge bg-primary">
+                            <i class="fas fa-tag me-1"></i> {{ expense.category }}
+                        </span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="display-6 fw-bold text-primary">₹{{ "%.2f"|format(expense.amount) }}</div>
+                    <small class="text-muted">Total Amount</small>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Paid By Section -->
+            <div class="mb-4">
+                <h6 class="text-uppercase small fw-bold mb-3">Paid By</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        {{ expense.payer_member.name[0].upper() }}
+                    </div>
+                    <div>
+                        <div class="fw-bold">{{ expense.payer_member.name }}</div>
+                        <small class="text-muted">{{ expense.payer_member.email }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if expense.notes %}
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-sticky-note me-2"></i>
+                <strong>Notes:</strong> {{ expense.notes }}
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mt-4">
+                <a href="{{ url_for('expenses.edit_expense', id=expense.id) }}" class="btn btn-warning">
+                    <i class="fas fa-edit me-2"></i> Edit
+                </a>
+                <form method="POST" action="{{ url_for('expenses.delete_expense', id=expense.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this expense?');">
+                        <i class="fas fa-trash me-2"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Split Breakdown -->
+    <div class="col-lg-4">
+        <div class="card spendly-card p-4">
+            <h6 class="text-uppercase small fw-bold mb-3">
+                <i class="fas fa-share-alt text-primary me-2"></i> Split Breakdown
+            </h6>
+
+            <div class="list-group list-group-flush">
+                {% for split in expense.splits %}
+                <div class="list-group-item p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold small">{{ split.member.name }}</div>
+                        {% if split.settled_at %}
+                        <small class="text-success">
+                            <i class="fas fa-check-circle me-1"></i> Settled
+                        </small>
+                        {% else %}
+                        <small class="text-warning">
+                            <i class="fas fa-hourglass-half me-1"></i> Pending
+                        </small>
+                        {% endif %}
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">₹{{ "%.2f"|format(split.share_amount) }}</div>
+                        {% if split.settled_at %}
+                        <small class="text-muted">{{ split.settled_at.strftime('%b %d') }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="my-3">
+
+            <div class="d-grid gap-2">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#settleModal">
+                    <i class="fas fa-check me-2"></i> Settle Splits
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Settle Modal -->
+<div class="modal fade" id="settleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Settle Splits</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Mark which splits have been settled:</p>
+                <form id="settleForm">
+                    {% for split in expense.splits %}
+                    {% if not split.settled_at %}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="settle_{{ split.id }}" value="{{ split.id }}">
+                        <label class="form-check-label" for="settle_{{ split.id }}">
+                            {{ split.member.name }} - ₹{{ "%.2f"|format(split.share_amount) }}
+                        </label>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="settleSelectedSplits()">Settle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function settleSelectedSplits() {
+    const checked = document.querySelectorAll('#settleForm input:checked');
+    if (checked.length === 0) {
+        showToast('Select at least one split to settle', 'warning');
+        return;
+    }
+    
+    const splitIds = Array.from(checked).map(c => c.value);
+    fetch('{{ url_for("expenses.settle_splits", id=expense.id) }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({split_ids: splitIds})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Splits settled successfully', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error, 'danger');
+        }
+    });
+}
+</script>
+{% endblock %}

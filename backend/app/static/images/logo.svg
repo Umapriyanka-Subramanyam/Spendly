@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Spendly logo">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0b1020" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect x="6" y="6" width="108" height="108" rx="20" fill="url(#g1)" opacity="0.12" />
+
+  <!-- Wallet + S monogram -->
+  <g transform="translate(12,12)">
+    <!-- Wallet body -->
+    <rect x="0" y="16" width="96" height="56" rx="10" fill="#0f1724" />
+    <!-- Wallet flap -->
+    <rect x="0" y="8" width="68" height="20" rx="8" fill="url(#g1)" />
+    <!-- Slot accent -->
+    <rect x="10" y="28" width="60" height="6" rx="3" fill="#0b1220" opacity="0.6" />
+
+    <!-- S-shaped monogram (stylized) -->
+    <path d="M68 22c-6 0-10 3-13 6-3 3-6 6-10 6-3 0-6-1-8-3" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" transform="translate(-6,6)" opacity="0.95" />
+
+    <!-- Rupee badge -->
+    <g transform="translate(64,44)">
+      <circle cx="0" cy="0" r="12" fill="url(#g2)" filter="url(#soft)" />
+      <text x="0" y="4" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#081126">₹</text>
+    </g>
+  </g>
+
+  <!-- Wordmark: Spendly -->
+  <g transform="translate(10,98)">
+    <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#e6e9f2">Spendly</text>
+  </g>
+</svg>

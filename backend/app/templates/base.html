@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Spendly - Smart Expense Manager{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Themes & Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ui-enhancements.css') }}">
+    <style>
+        /* Sidebar card glassmorphism */
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .sidebar-card .card-body {
+            padding: 1rem;
+        }
+
+        .sidebar-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ---- Brand Logo Styles ---- */
+        .spendly-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: transform 0.25s ease;
+        }
+
+        .spendly-brand:hover {
+            transform: scale(1.03);
+        }
+
+        /* Icon container */
+        .brand-icon-wrap {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.50),
+                0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+            flex-shrink: 0;
+            transition: box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-icon-wrap::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 11px 11px 0 0;
+            pointer-events: none;
+        }
+
+        .spendly-brand:hover .brand-icon-wrap {
+            box-shadow: 0 6px 22px rgba(99, 102, 241, 0.70),
+                0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+        }
+
+        /* Brand icon SVG */
+        .brand-icon-svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+
+        /* Wordmark */
+        .brand-wordmark {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        /* Navbar active item styling */
+        .navbar-nav .nav-item {
+            margin: 0 2px;
+        }
+
+        .navbar-nav .nav-link.active {
+            background: linear-gradient(135deg, var(--spendly-primary) 0%, var(--spendly-primary-hover) 100%) !important;
+            color: #ffffff !important;
+            font-weight: 600;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3">
+        <div class="container">
+            <a class="spendly-brand" href="{{ url_for('main.dashboard_view') }}" aria-label="Spendly Home">
+                <!-- Icon Mark -->
+                <div class="brand-icon-wrap">
+                    <svg class="brand-icon-svg" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true">
+                        <!-- Chart bars -->
+                        <rect x="1" y="14" width="3.5" height="7" rx="1.2" fill="white" opacity="0.70" />
+                        <rect x="6" y="9" width="3.5" height="12" rx="1.2" fill="white" opacity="0.88" />
+                        <rect x="11" y="11" width="3.5" height="10" rx="1.2" fill="white" opacity="0.80" />
+                        <rect x="16" y="5" width="3.5" height="16" rx="1.2" fill="white" />
+                        <!-- Trend line -->
+                        <polyline points="2.5,13  7.5,8  13,10  19,4" stroke="#67e8f9" stroke-width="1.6"
+                            stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+                        <!-- Trend dot -->
+                        <circle cx="19" cy="4" r="2" fill="#67e8f9" opacity="0.95" />
+                    </svg>
+                </div>
+                <!-- Wordmark -->
+                <span class="brand-wordmark">Spendly</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint == 'main.dashboard_view' }}"
+                            href="{{ url_for('main.dashboard_view') }}">
+                            <i class="fas fa-chart-line me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint and request.endpoint.startswith('expenses.') }}"
+                            href="{{ url_for('expenses.list_expenses') }}">
+                            <i class="fas fa-wallet me-2"></i> Expenses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint == 'members.members_list' }}"
+                            href="{{ url_for('members.members_list') }}">
+                            <i class="fas fa-users me-2"></i> Members
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint == 'analytics.analytics' }}"
+                            href="{{ url_for('analytics.analytics') }}">
+                            <i class="fas fa-chart-pie me-2"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint == 'analytics.predictions' }}"
+                            href="{{ url_for('analytics.predictions') }}">
+                            <i class="fas fa-brain me-2"></i> Predictions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint == 'settlements.settlements' }}"
+                            href="{{ url_for('settlements.settlements') }}">
+                            <i class="fas fa-handshake me-2"></i> Settlements
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint and request.endpoint.startswith('settings.') }}"
+                            href="{{ url_for('settings.preferences') }}">
+                            <i class="fas fa-cog me-2"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 {{ 'active' if request.endpoint == 'main.profile' }}"
+                            href="{{ url_for('main.profile') }}">
+                            <i class="fas fa-user me-2"></i> Profile
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <button id="theme-toggle" class="btn btn-sm btn-outline-light" title="Toggle dark/light theme">
+                            <i class="fas fa-moon"></i> Dark
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="spendly-main">
+        {% if request.endpoint != 'main.login' %}
+        <div class="container-lg">
+            {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+                role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+            {% if request.endpoint != 'main.login' %}
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container" role="region" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Footer Removed per user request -->
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

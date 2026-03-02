@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+{% block title %}Members - Spendly{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-8">
+        <h1 class="display-6 fw-bold mb-2">
+            <i class="fas fa-users text-primary me-2"></i> Members
+        </h1>
+        <p class="lead text-muted">Manage your group members</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <button class="btn btn-primary" onclick="openAddMemberModal()">
+            <i class="fas fa-user-plus me-2"></i> Add Member
+        </button>
+    </div>
+</div>
+
+<!-- Members Table View -->
+<div class="card spendly-card members-card p-4 mb-5 overflow-auto">
+    {% if members %}
+    <table class="table table-hover mb-0 members-table">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Email</th>
+                <th>Balance</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-lg"
+                            style="width: 40px; height: 40px; font-size: 14px; background: linear-gradient(135deg, {{ member.avatar_color }} 0%, {{ member.avatar_color }}80 100%);">
+                            {{ member.name[0].upper() }}{{ member.name.split()[-1][0].upper() if ' ' in member.name else
+                            '' }}
+                        </div>
+                        <div class="fw-bold">{{ member.name }}</div>
+                    </div>
+                </td>
+                <td><small>{{ member.email }}</small></td>
+                <td>
+                    {% set balance = member.total_paid - member.total_share %}
+                    {% if balance > 0 %}
+                    <span class="badge bg-success">+₹{{ "%.2f"|format(balance) }}</span>
+                    {% elif balance < 0 %} <span class="badge bg-warning">-₹{{ "%.2f"|format(abs(balance)) }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Settled</span>
+                        {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-outline-light btn-sm" onclick="openEditMemberModal({{ member.id }})"
+                            title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm"
+                            onclick="openDeleteMemberModal({{ member.id }}, '{{ member.name }}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-3x text-muted mb-3 opacity-50"></i>
+        <h5 class="text-muted mb-2">No members yet</h5>
+        <p class="text-muted">Add members to track shared expenses</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Members Grid Alternative View -->
+<div class="row g-4 mb-5" style="display: none;">
+    {% if members %}
+    {% for member in members %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card spendly-card h-100 transition-all">
+            <div class="card-body">
+                <div class="d-flex gap-3 mb-3">
+                    <div class="avatar-lg"
+                        style="background: linear-gradient(135deg, {{ member.avatar_color }} 0%, {{ member.avatar_color }}80 100%);">
+                        {{ member.name[0].upper() }}{{ member.name.split()[-1][0].upper() if ' ' in member.name else ''
+                        }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="card-title mb-1">{{ member.name }}</h6>
+                        <small class="text-muted d-block">{{ member.email }}</small>
+                        {% if member.phone %}
+                        <small class="text-muted d-block">{{ member.phone }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <!-- Stats -->
+                <div class="row gap-3">
+                    <div class="col">
+                        <div class="stat-card">
+                            <small class="text-muted">Total Paid</small>
+                            <div class="fw-bold text-success">₹{{ "%.2f"|format(member.total_paid) }}</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="stat-card">
+                            <small class="text-muted">Their Share</small>
+                            <div class="fw-bold text-info">₹{{ "%.2f"|format(member.total_share) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance -->
+                <div class="mt-3 p-3 rounded" style="background: rgba(255,255,255,0.05);">
+                    <small class="text-muted d-block mb-1">Balance</small>
+                    {% set balance = member.total_paid - member.total_share %}
+                    <div
+                        class="fw-bold {% if balance > 0 %}text-success{% elif balance < 0 %}text-warning{% else %}text-muted{% endif %}">
+                        {% if balance > 0 %}
+                        <i class="fas fa-arrow-down me-1"></i> Gets back ₹{{ "%.2f"|format(balance) }}
+                        {% elif balance < 0 %} <i class="fas fa-arrow-up me-1"></i> Owes ₹{{ "%.2f"|format(abs(balance))
+                            }}
+                            {% else %}
+                            <i class="fas fa-equals me-1"></i> All settled
+                            {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-outline-light btn-sm" onclick="openEditMemberModal({{ member.id }})">
+                        <i class="fas fa-edit me-2"></i> Edit
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm"
+                        onclick="openDeleteMemberModal({{ member.id }}, '{{ member.name }}')">
+                        <i class="fas fa-trash me-2"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="card spendly-card p-5 text-center">
+            <i class="fas fa-users fa-3x text-muted mb-3 opacity-50"></i>
+            <h5 class="mb-2">No members yet</h5>
+            <p class="text-muted">Add members to track shared expenses</p>
+            <button class="btn btn-primary mt-3" onclick="openAddMemberModal()">
+                <i class="fas fa-user-plus me-2"></i> Add First Member
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Member Modal -->
+<div class="modal fade" id="addMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Add New Member</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addMemberForm">
+                    <div class="mb-3">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="add_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="add_email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="add_phone">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddMember()">Add Member</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Member Modal -->
+<div class="modal fade" id="editMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Edit Member</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editMemberForm">
+                    <input type="hidden" id="edit_id">
+                    <div class="mb-3">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="edit_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit_email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="edit_phone">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditMember()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Member Modal -->
+<div class="modal fade" id="deleteMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border-danger">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title">Remove Member</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Are you sure you want to remove <strong id="del_name"></strong>?</p>
+                <div class="alert alert-warning small" id="del_warning" style="display:none;">
+                    <i class="fas fa-warning me-2"></i> <span id="del_expenses"></span>
+                </div>
+            </div>
+            <div class="modal-footer border-danger">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="submitDeleteMember()">Remove Member</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+    }
+
+    .avatar-lg {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .transition-all {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .transition-all:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+    }
+
+    /* Members Table Styling */
+    .members-table {
+        background: #1a1736 !important;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .members-table th {
+        background: #2d2a5f !important;
+        color: #ffffff !important;
+        border-bottom: 2px solid #3d3a6f !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem !important;
+    }
+
+    .members-table td {
+        vertical-align: middle;
+        padding: 1rem !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: #ffffff !important;
+        background: #1e1b3d !important;
+    }
+
+    .members-table tbody tr {
+        background: #1e1b3d !important;
+    }
+
+    .members-table tbody tr:hover {
+        background: #2a2654 !important;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Ensure all text in table is visible */
+    .members-table td * {
+        color: #ffffff !important;
+    }
+
+    .members-table td small {
+        color: #cbd5e1 !important;
+    }
+</style>
+
+<script src="{{ url_for('static', filename='js/members.js') }}"></script>
+{% endblock %}

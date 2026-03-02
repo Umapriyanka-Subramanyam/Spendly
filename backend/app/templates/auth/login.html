@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Spendly{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a0e27 0%, #1e1b4b 100%);">
+    <div class="w-100" style="max-width: 450px; padding: 2rem 1.5rem;">
+        <!-- Prominent Title -->
+        <div class="login-hero mb-4">
+            <h1 class="h3 fw-bold mb-0">Welcome Back</h1>
+            <p class="hero-subtitle">Track, split, and manage expenses with ease</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show mb-3" role="alert">
+                        <i class="fas fa-{{ 'exclamation-circle' if category in ('error', 'danger') else 'check-circle' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Login Form -->
+        <div class="card spendly-card p-4 mb-4">
+            <form method="POST" id="login-form" novalidate>
+                <!-- Email/Username -->
+                <div class="mb-3">
+                    <label class="form-label">Email or Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="fas fa-envelope text-muted"></i>
+                        </span>
+                        <input type="text" name="identifier" class="form-control border-start-0" 
+                               placeholder="your@email.com or username" required autofocus>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            <i class="fas fa-lock text-muted"></i>
+                        </span>
+                        <input type="password" name="password" class="form-control border-start-0" 
+                               placeholder="Enter your password" required>
+                        <button class="btn btn-outline-secondary border-start-0" type="button" 
+                                onclick="togglePasswordVisibility(this)" style="background: transparent;">
+                            <i class="fas fa-eye text-muted"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="form-check mb-4">
+                    <input type="checkbox" name="remember_me" id="remember" class="form-check-input">
+                    <label class="form-check-label" for="remember">
+                        Remember me
+                    </label>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mb-3">
+                    <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                </button>
+
+                <!-- Forgot Password -->
+                <div class="text-center mb-3">
+                    <a href="#" class="text-muted small text-decoration-none" onclick="alert('Password reset coming soon!')">
+                        Forgot your password?
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Social Login (Placeholder) -->
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-outline-light w-100 btn-sm" onclick="alert('Google login coming soon!')">
+                <i class="fab fa-google"></i> Google
+            </button>
+            <button class="btn btn-outline-light w-100 btn-sm" onclick="alert('GitHub login coming soon!')">
+                <i class="fab fa-github"></i> GitHub
+            </button>
+        </div>
+
+        <!-- Register Link -->
+        <div class="text-center">
+            <p class="text-muted small mb-0">
+                Don't have an account?
+                <a href="{{ url_for('auth.register') }}" class="text-primary fw-bold">Sign up</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePasswordVisibility(btn) {
+    const input = btn.parentElement.querySelector('input');
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Form validation
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    if (!this.identifier.value.trim() || !this.password.value) {
+        e.preventDefault();
+        showToast('Please fill all fields', 'warning');
+    }
+});
+</script>
+{% endblock %}

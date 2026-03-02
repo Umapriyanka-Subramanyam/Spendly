@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Spendly icon">
+  <defs>
+    <linearGradient id="iconPrimaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="35%" stop-color="#8b5cf6"/>
+      <stop offset="70%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    
+    <linearGradient id="iconGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#f472b6" stop-opacity="0.3"/>
+    </linearGradient>
+    
+    <linearGradient id="iconAccentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    
+    <filter id="iconGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="iconShadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background glow -->
+  <circle cx="32" cy="32" r="28" fill="url(#iconGlowGrad)" opacity="0.2"/>
+  
+  <!-- Main wallet icon -->
+  <g transform="translate(16, 18)" filter="url(#iconShadow)">
+    <!-- Wallet body -->
+    <path d="M 4 8 L 28 8 Q 32 8 32 12 L 32 26 Q 32 30 28 30 L 4 30 Q 0 30 0 26 L 0 12 Q 0 8 4 8 Z" 
+          fill="url(#iconPrimaryGrad)" opacity="0.95"/>
+    
+    <!-- Card accent -->
+    <rect x="2" y="3" width="22" height="14" rx="3" fill="#ffffff" opacity="0.15"/>
+    
+    <!-- Analytics bars -->
+    <g transform="translate(16, 19)">
+      <rect x="-8" y="3" width="3" height="7" rx="1.5" fill="#ffffff" opacity="0.9"/>
+      <rect x="-3" y="-1" width="3" height="11" rx="1.5" fill="#ffffff" opacity="0.95"/>
+      <rect x="2" y="1" width="3" height="9" rx="1.5" fill="#ffffff"/>
+      <rect x="7" y="-2" width="3" height="12" rx="1.5" fill="#ffffff" opacity="0.9"/>
+    </g>
+  </g>
+  
+  <!-- Premium AI badge -->
+  <g transform="translate(46, 46)" filter="url(#iconGlow)">
+    <circle r="10" fill="url(#iconAccentGrad)"/>
+    <text x="0" y="5" text-anchor="middle" font-family="Inter, sans-serif" 
+          font-weight="800" font-size="13" fill="#0a0a0a">₹</text>
+  </g>
+</svg>

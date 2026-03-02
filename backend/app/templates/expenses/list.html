@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+
+{% block title %}Expenses - Spendly{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-8">
+        <h1 class="display-6 fw-bold mb-2">
+            <i class="fas fa-list text-primary me-2"></i> Expenses
+        </h1>
+        <p class="lead text-muted">Track all your group expenses</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('expenses.add_expense') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Add Expense
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3">
+        <div class="card spendly-card p-4 sticky-top" style="top: 80px;">
+            <h6 class="text-uppercase small fw-bold mb-3">
+                <i class="fas fa-filter text-primary me-2"></i> Filters
+            </h6>
+
+            <div class="mb-4">
+                <label class="form-label small">Category</label>
+                <select class="form-select form-select-sm" id="category-filter" onchange="filterExpenses()">
+                    <option value="" {% if not request.args.get('category') %}selected{% endif %}>All Categories
+                    </option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if request.args.get('category')==cat %}selected{% endif %}>{{
+                        categories[cat] }} {{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small">Date Range</label>
+                <div class="btn-group-vertical w-100 mb-3" role="group">
+                    <input type="radio" class="btn-check" name="date_range" id="dr-all" value=""
+                        onchange="filterExpenses()" {% if not date_range %}checked{% endif %}>
+                    <label class="btn btn-outline-light text-start" for="dr-all">All Time</label>
+
+                    <input type="radio" class="btn-check" name="date_range" id="dr-week" value="week"
+                        onchange="filterExpenses()" {% if date_range=='week' %}checked{% endif %}>
+                    <label class="btn btn-outline-light text-start" for="dr-week">Last 7 Days</label>
+
+                    <input type="radio" class="btn-check" name="date_range" id="dr-month" value="month"
+                        onchange="filterExpenses()" {% if date_range=='month' %}checked{% endif %}>
+                    <label class="btn btn-outline-light text-start" for="dr-month">Last 30 Days</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expenses Table -->
+    <div class="col-lg-9">
+        {% if expenses %}
+        <div class="card spendly-card p-4 overflow-auto">
+            <table class="table table-hover mb-0 expense-table">
+                <thead>
+                    <tr class="expense-table-header">
+                        <th class="expense-col-date">Date</th>
+                        <th class="expense-col-description">Description</th>
+                        <th class="expense-col-amount">Amount</th>
+                        <th class="expense-col-paid-by">Paid By</th>
+                        <th>Category</th>
+                        <th class="expense-col-share">Your Share</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr class="align-middle expense-table-row">
+                        <td class="expense-col-date"><small>{{ expense.created_at.strftime('%b %d') }}</small></td>
+                        <td class="expense-col-description fw-bold">{{ expense.description }}</td>
+                        <td class="expense-col-amount text-end"><strong>₹{{ "%.2f"|format(expense.amount) }}</strong>
+                        </td>
+                        <td class="expense-col-paid-by">{{ expense.payer_member.name if expense.payer_member else '—' }}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">
+                                <i class="fas fa-tag me-1"></i> {{ expense.category }}
+                            </span>
+                        </td>
+                        <td class="expense-col-share text-end">
+                            {% set user_share = 0 %}
+                            {% for split in expense.splits %}
+                            {% if split.member_id == current_user.id %}
+                            {% set user_share = split.share_amount %}
+                            {% endif %}
+                            {% endfor %}
+                            <span class="text-success fw-bold">₹{{ "%.2f"|format(user_share) }}</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('expenses.expense_details', id=expense.id) }}"
+                                    class="btn btn-outline-light" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('expenses.edit_expense', id=expense.id) }}"
+                                    class="btn btn-outline-light" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('expenses.delete_expense', id=expense.id) }}"
+                                    style="display: inline;">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete"
+                                        onclick="return confirm('Delete this expense?');">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('expenses.list_expenses', page=page_num) }}">{{ page_num
+                        }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="card spendly-card p-5 text-center">
+            <i class="fas fa-inbox fa-3x text-muted mb-3 opacity-50"></i>
+            <h5 class="mb-2">No expenses yet</h5>
+            <p class="text-muted">Start tracking by adding your first expense</p>
+            <a href="{{ url_for('expenses.add_expense') }}" class="btn btn-primary mt-3">
+                <i class="fas fa-plus me-2"></i> Add First Expense
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Expense Table Styles -->
+<style>
+    /* Strong dark theme for expense table - force table & rows dark */
+    .expense-table,
+    .expense-table thead,
+    .expense-table tbody,
+    .expense-table tr,
+    .expense-table td {
+        background-color: #1e1b4b !important;
+        border-color: rgba(99, 102, 241, 0.06) !important;
+    }
+
+    /* Table Header Styling */
+    .expense-table thead tr.expense-table-header {
+        background-color: #0f0d2b !important;
+        border-bottom: 2px solid rgba(99, 102, 241, 0.28) !important;
+    }
+
+    .expense-table-header th {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        padding: 1rem !important;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.6px;
+    }
+
+    /* Table Body Row Styling */
+    .expense-table-row {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+        background-color: transparent !important;
+        /* row inherits table bg */
+    }
+
+    /* Zebra: slightly different dark for even rows for readability */
+    .expense-table tbody tr:nth-child(even) {
+        background-color: #18162f !important;
+    }
+
+    .expense-table-row:hover {
+        background-color: rgba(99, 102, 241, 0.12) !important;
+    }
+
+    /* Table Cell Styling */
+    .expense-table td {
+        color: #e6eef8 !important;
+        /* default light color */
+        padding: 1rem !important;
+        vertical-align: middle;
+        background-color: transparent !important;
+    }
+
+    /* Date Column - Light Gray */
+    .expense-col-date {
+        color: #cbd5e1 !important;
+        font-size: 0.9rem;
+    }
+
+    .expense-col-date small {
+        color: #cbd5e1 !important;
+    }
+
+    /* Description Column - White */
+    .expense-col-description {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+    /* Amount Column - Green */
+    .expense-col-amount {
+        color: #10b981 !important;
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    /* Paid By Column - Light Gray */
+    .expense-col-paid-by {
+        color: #cbd5e1 !important;
+    }
+
+    /* Your Share Column - Green */
+    .expense-col-share {
+        color: #10b981 !important;
+        font-weight: 700;
+    }
+
+    /* Category Badge */
+    .expense-table .badge {
+        background-color: rgba(99, 102, 241, 0.85) !important;
+        color: #ffffff !important;
+        padding: 0.45rem 0.7rem !important;
+        border-radius: 6px !important;
+    }
+
+    /* Action Buttons */
+    .expense-table .btn-outline-light {
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        color: #9ca3af !important;
+        background: transparent !important;
+    }
+
+    .expense-table .btn-outline-light:hover {
+        border-color: rgba(99, 102, 241, 0.6) !important;
+        color: #ffffff !important;
+        background-color: rgba(99, 102, 241, 0.12) !important;
+    }
+
+    .expense-table .btn-outline-danger {
+        border-color: rgba(239, 68, 68, 0.28) !important;
+        color: #fca5a5 !important;
+    }
+
+    .expense-table .btn-outline-danger:hover {
+        border-color: rgba(239, 68, 68, 0.6) !important;
+        color: #ffffff !important;
+        background-color: rgba(239, 68, 68, 0.12) !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .expense-table td {
+            padding: 0.75rem !important;
+            font-size: 0.9rem;
+        }
+
+        .expense-table-header th {
+            padding: 0.75rem !important;
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<script>
+    function filterExpenses() {
+        const params = new URLSearchParams();
+        const categoryEl = document.getElementById('category-filter');
+        const dateRangeEl = document.querySelector('[name="date_range"]:checked');
+        const category = categoryEl ? categoryEl.value : '';
+        const dateRange = dateRangeEl ? dateRangeEl.value : '';
+        if (category) params.append('category', category);
+        if (dateRange) params.append('date_range', dateRange);
+        window.location.href = '{{ url_for("expenses.list_expenses") }}?' + params.toString();
+    }
+</script>
+{% endblock %}

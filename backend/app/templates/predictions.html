@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Predictions - Spendly{% endblock %}
+
+{% block content %}
+<div class="container-lg py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold animate-fadeDown"><i class="fas fa-brain me-2"></i> AI Predictions</h1>
+            <p class="text-muted">Smart forecasting based on your spending patterns</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT COLUMN: Main Content (col-lg-8) -->
+        <div class="col-lg-8">
+            <!-- Next Month Prediction Hero Card -->
+            <div class="card border-0 shadow-sm mb-4 animate-fadeUp">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <p class="text-muted small mb-1"><i class="fas fa-calendar-alt me-1"></i> Next Month
+                                Forecast</p>
+                            <h2 class="fw-bold mb-0">₹{{ "{:,.0f}".format(data.next_month_prediction) }}</h2>
+                        </div>
+                        <span
+                            class="badge {% if data.trend == 'up' %}bg-warning{% else %}bg-success{% endif %} animate-bounce">
+                            {% if data.trend == 'up' %}<i class="fas fa-arrow-up me-1"></i> +{{ data.change_percent
+                            }}%{% else %}<i class="fas fa-arrow-down me-1"></i> {{ data.change_percent }}%{% endif %}
+                        </span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: 75%;"></div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        Based on last month: ₹{{ "{:,.0f}".format(data.last_month) }}
+                    </small>
+                </div>
+            </div>
+
+            <!-- Historical vs Forecast Chart -->
+            <div class="card border-0 shadow-sm mb-4 animate-fadeUp">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-chart-line me-2"></i> Spending Forecast</h5>
+                    <canvas id="forecastChart" height="80"></canvas>
+                </div>
+            </div>
+
+            <!-- Category Predictions Table -->
+            <div class="card border-0 shadow-sm animate-fadeUp">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-tag me-2"></i> Category Breakdown</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Last Month</th>
+                                    <th>Predicted</th>
+                                    <th>Trend</th>
+                                    <th>Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pred in data.category_predictions %}
+                                <tr>
+                                    <td class="fw-bold">{{ pred.category }}</td>
+                                    <td>₹{{ "{:,.0f}".format(pred.last_month) }}</td>
+                                    <td>₹{{ "{:,.0f}".format(pred.predicted) }}</td>
+                                    <td>
+                                        {% if pred.change_percent > 0 %}
+                                        <span class="badge bg-warning">+{{ pred.change_percent }}%</span>
+                                        {% else %}
+                                        <span class="badge bg-success">{{ pred.change_percent }}%</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="width: 100px; display: inline-block; height: 6px;">
+                                            <div class="progress-bar bg-primary" style="width: {{ pred.confidence }}%;">
+                                            </div>
+                                        </div>
+                                        <small class="ms-2">{{ pred.confidence }}%</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: Quick Info (col-lg-4) -->
+        <div class="col-lg-4">
+            <!-- Budget Tips Card -->
+            <div class="card spendly-card sidebar-card mb-4 animate-slideRight">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Budget Tips</h5>
+                    {% for tip in data.budget_tips %}
+                    <div class="alert alert-info alert-sm mb-2">
+                        <div class="d-flex gap-2">
+                            <span style="font-size: 1.1rem;"><i class="fas fa-lightbulb text-info"></i></span>
+                            <div class="flex-grow-1">
+                                <strong>{{ tip.title }}</strong>
+                                <p class="mb-1 small">{{ tip.message }}</p>
+                                <small class="text-success">{{ tip.savings }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Spending Alerts Card -->
+            {% if data.spending_alerts %}
+            <div class="card spendly-card sidebar-card mb-4 animate-slideRight" style="animation-delay: 0.1s;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Alerts</h5>
+                    {% for alert in data.spending_alerts %}
+                    <div
+                        class="alert alert-{% if alert.severity == 'warning' %}warning{% else %}info{% endif %} alert-sm mb-2">
+                        <div class="d-flex gap-2">
+                            <span>
+                                {% if alert.severity == 'warning' %}
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                {% else %}
+                                <i class="fas fa-info-circle text-info"></i>
+                                {% endif %}
+                            </span>
+                            <div class="flex-grow-1">
+                                <small>
+                                    <strong>{{ alert.category }}</strong><br>
+                                    {{ alert.message }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Prediction Accuracy Card -->
+            <div class="card spendly-card sidebar-card mb-4 animate-slideRight" style="animation-delay: 0.2s;">
+                <div class="card-body p-4 text-center">
+                    <h5 class="fw-bold mb-3">Accuracy</h5>
+                    <div class="d-flex justify-content-center mb-3">
+                        <canvas id="accuracyChart" width="120" height="120"></canvas>
+                    </div>
+                    <p class="mb-0">
+                        <span class="fs-5 fw-bold">{{ data.accuracy }}%</span><br>
+                        <small class="text-muted">Based on 6-month history</small>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="card spendly-card sidebar-card animate-slideRight" style="animation-delay: 0.3s;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('expenses.add_expense') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i> Add Expense
+                        </a>
+                        <a href="{{ url_for('analytics.analytics') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-chart-bar me-2"></i> View Analytics
+                        </a>
+                        <button class="btn btn-outline-primary btn-sm" onclick="exportPredictions()">
+                            <i class="fas fa-download me-2"></i> Export Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles -->
+<style>
+    .alert-sm {
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
+
+    .progress {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    /* Category Breakdown Table Styling */
+    .table {
+        background: #1a1736 !important;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .table th {
+        background: #2d2a5f !important;
+        color: #ffffff !important;
+        border-bottom: 2px solid #3d3a6f !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem !important;
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 1rem !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: #ffffff !important;
+        background: #1e1b3d !important;
+    }
+
+    .table tbody tr {
+        background: #1e1b3d !important;
+    }
+
+    .table tbody tr:hover td {
+        background: #2a2654 !important;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Category name column - bright white text */
+    .table tbody td:first-child {
+        color: #ffffff !important;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Last Month column - bright white */
+    .table tbody td:nth-child(2) {
+        color: #ffffff !important;
+        font-weight: 500;
+    }
+
+    /* Predicted column - bright light green */
+    .table tbody td:nth-child(3) {
+        color: #4ade80 !important;
+        font-weight: 600;
+    }
+
+    /* Trend badge column */
+    .table tbody td:nth-child(4) {
+        text-align: center;
+    }
+
+    /* Confidence column - bright white */
+    .table tbody td:nth-child(5) {
+        color: #ffffff !important;
+    }
+
+    @media (max-width: 992px) {
+
+        .col-lg-8,
+        .col-lg-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+</style>
+
+<!-- Chart Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // Forecast Chart (Line Chart with Historical + Predicted)
+    function createForecastChart() {
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+        const historicalLabels = {{ data.historical_labels | tojson
+    }};
+    const historicalData = {{ data.historical_data | tojson }};
+    const forecastLabels = {{ data.forecast_labels | tojson }};
+    const forecastData = {{ data.forecast_data | tojson }};
+
+    // Combine labels
+    const allLabels = [...historicalLabels, ...forecastLabels];
+
+    // Create extended data arrays
+    const extendedHistorical = [...historicalData, ...Array(forecastLabels.length).fill(null)];
+    const extendedForecast = [...Array(historicalLabels.length).fill(null), ...forecastData];
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: allLabels,
+            datasets: [
+                {
+                    label: 'Actual Spending',
+                    data: extendedHistorical,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3b82f6'
+                },
+                {
+                    label: 'Predicted Spending',
+                    data: extendedForecast,
+                    borderColor: '#f97316',
+                    borderDash: [5, 5],
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#f97316'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: { color: '#f1f5f9', usePointStyle: true }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#94a3b8',
+                        callback: function (value) {
+                            return '₹' + value.toLocaleString('en-IN');
+                        }
+                    },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                },
+                x: {
+                    ticks: { color: '#94a3b8' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                }
+            }
+        }
+    });
+    }
+
+    // Accuracy Progress Chart (Doughnut)
+    function createAccuracyChart() {
+        const ctx = document.getElementById('accuracyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [{{ data.accuracy }}, {{ 100 - data.accuracy }}],
+            backgroundColor: ['#667eea', 'rgba(102, 126, 234, 0.2)'],
+            borderColor: '#1e293b',
+            borderWidth: 2
+        }]
+            },
+    options: {
+        responsive: true,
+            maintainAspectRatio: true,
+                plugins: { legend: { display: false } }
+    }
+        });
+    }
+
+    // Initialize charts on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        createForecastChart();
+        createAccuracyChart();
+    });
+
+    // Export predictions function
+    function exportPredictions() {
+        alert('Export report feature coming soon!');
+    }
+</script>
+{% endblock %}
