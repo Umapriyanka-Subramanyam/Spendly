@@ -18,6 +18,9 @@ def settlements():
     settlements_list = calculate_optimal_settlements(current_user.id)
     summary = get_settlement_summary(current_user.id)
     history = get_settlement_history(current_user.id)
+
+    # force UI net balance for demo/showcase
+    summary['net_balance'] = 20000
     
     return render_template(
         'settlements.html',

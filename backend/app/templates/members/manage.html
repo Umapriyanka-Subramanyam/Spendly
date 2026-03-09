@@ -47,7 +47,7 @@
                     {% set balance = member.total_paid - member.total_share %}
                     {% if balance > 0 %}
                     <span class="badge bg-success">+₹{{ "%.2f"|format(balance) }}</span>
-                    {% elif balance < 0 %} <span class="badge bg-warning">-₹{{ "%.2f"|format(abs(balance)) }}</span>
+                    {% elif balance < 0 %} <span class="badge bg-warning">-₹{{ "%.2f"|format(balance|abs) }}</span>
                         {% else %}
                         <span class="badge bg-secondary">Settled</span>
                         {% endif %}
@@ -125,7 +125,7 @@
                         class="fw-bold {% if balance > 0 %}text-success{% elif balance < 0 %}text-warning{% else %}text-muted{% endif %}">
                         {% if balance > 0 %}
                         <i class="fas fa-arrow-down me-1"></i> Gets back ₹{{ "%.2f"|format(balance) }}
-                        {% elif balance < 0 %} <i class="fas fa-arrow-up me-1"></i> Owes ₹{{ "%.2f"|format(abs(balance))
+                        {% elif balance < 0 %} <i class="fas fa-arrow-up me-1"></i> Owes ₹{{ "%.2f"|format(balance|abs)
                             }}
                             {% else %}
                             <i class="fas fa-equals me-1"></i> All settled

@@ -24,6 +24,10 @@ class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
     SERVER_NAME = 'localhost:5000'
+    
+    # Override secure cookies for localhost
+    SESSION_COOKIE_SECURE = False
+    REMEMBER_COOKIE_SECURE = False
 
 class ProductionConfig(Config):
     """Production configuration"""

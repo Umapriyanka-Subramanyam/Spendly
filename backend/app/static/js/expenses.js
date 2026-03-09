@@ -275,6 +275,23 @@ function submitExpenseForm() {
     document.getElementById('expenseForm').submit();
 }
 
+// ===== EXPORT FUNCTIONS =====
+function exportExpensesPDF() {
+    // Get current filters
+    const category = document.getElementById('category-filter')?.value || '';
+    const dateRange = document.querySelector('input[name="date_range"]:checked')?.value || '';
+
+    // Build URL with filters
+    let url = '/expenses/export/pdf';
+    const params = [];
+    if (category) params.push(`category=${encodeURIComponent(category)}`);
+    if (dateRange) params.push(`date_range=${encodeURIComponent(dateRange)}`);
+    if (params.length > 0) url += '?' + params.join('&');
+
+    // Open in new tab to trigger download
+    window.open(url, '_blank');
+}
+
 // ===== INITIALIZE ON PAGE LOAD =====
 document.addEventListener('DOMContentLoaded', () => {
     initDatePicker();

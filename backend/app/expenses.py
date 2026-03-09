@@ -275,4 +275,122 @@ def settle_splits(id):
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 400
+@bp.route('/export/pdf')
+@login_required
+def export_expenses_pdf():
+    """Export expenses as PDF."""
+    try:
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib import colors
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from io import BytesIO
+        from flask import send_file
+        
+        # Build query with same filters as list_expenses
+        query = Expense.query.filter_by(user_id=current_user.id)
+        
+        # Filters
+        category = request.args.get('category')
+        if category:
+            query = query.filter_by(category=category)
+        
+        date_range = request.args.get('date_range')
+        if date_range == 'week':
+            query = query.filter(Expense.created_at >= datetime.now() - timedelta(days=7))
+        elif date_range == 'month':
+            query = query.filter(Expense.created_at >= datetime.now() - timedelta(days=30))
+        
+        # Get all expenses (no pagination for export)
+        expenses = query.order_by(Expense.created_at.desc()).all()
+        
+        if not expenses:
+            # No expenses to export
+            return jsonify({'error': 'No expenses found to export'}), 404
+        
+        # Create PDF
+        pdf_buffer = BytesIO()
+        doc = SimpleDocTemplate(pdf_buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#667eea'),
+            spaceAfter=30,
+            alignment=1  # Center
+        )
+        story.append(Paragraph('Spendly Expenses Report', title_style))
+        story.append(Spacer(1, 0.3*inch))
+        
+        # Summary
+        total_amount = sum(e.amount for e in expenses)
+        summary_style = ParagraphStyle(
+            'SectionHead',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('#667eea'),
+            spaceAfter=12
+        )
+        story.append(Paragraph(f'Summary: {len(expenses)} expenses, Total: ₹{total_amount:.2f}', summary_style))
+        story.append(Spacer(1, 0.2*inch))
+        
+        # Expenses table
+        table_data = [['Date', 'Description', 'Amount', 'Paid By', 'Category', 'Your Share']]
+        
+        for expense in expenses:
+            # Find user's share
+            user_share = 0
+            for split in expense.splits:
+                if split.member.user_id == current_user.id:
+                    user_share = split.share_amount
+                    break
+            
+            table_data.append([
+                (expense.expense_date or expense.created_at).strftime('%Y-%m-%d'),
+                expense.description,
+                f"₹{expense.amount:.2f}",
+                expense.payer_member.name if expense.payer_member else 'Unknown',
+                expense.category,
+                f"₹{user_share:.2f}"
+            ])
+        
+        # Create table
+        expense_table = Table(table_data)
+        expense_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ]))
+        story.append(expense_table)
+        
+        # Build PDF
+        doc.build(story)
+        pdf_buffer.seek(0)
+        
+        # Generate filename with current date
+        filename = f"spendly_expenses_{datetime.now().strftime('%Y%m%d')}.pdf"
+        
+        # Return PDF as response
+        from flask import current_app
+        response = current_app.response_class(
+            pdf_buffer.getvalue(),
+            mimetype='application/pdf',
+            headers={'Content-Disposition': f'attachment; filename={filename}'}
+        )
+        return response
+    
+    except ImportError:
+        return jsonify({'error': 'PDF export requires reportlab. Please install with: pip install reportlab'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Error generating PDF: {str(e)}'}), 500

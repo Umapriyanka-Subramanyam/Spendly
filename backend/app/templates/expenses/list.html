@@ -11,9 +11,14 @@
         <p class="lead text-muted">Track all your group expenses</p>
     </div>
     <div class="col-md-4 text-md-end">
-        <a href="{{ url_for('expenses.add_expense') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i> Add Expense
-        </a>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('expenses.add_expense') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i> Add Expense
+            </a>
+            <button class="btn btn-outline-primary" onclick="exportExpensesPDF()">
+                <i class="fas fa-file-pdf me-2"></i> Export PDF
+            </button>
+        </div>
     </div>
 </div>
 
@@ -89,7 +94,7 @@
                         <td class="expense-col-share text-end">
                             {% set user_share = 0 %}
                             {% for split in expense.splits %}
-                            {% if split.member_id == current_user.id %}
+                            {% if split.member.user_id == current_user.id %}
                             {% set user_share = split.share_amount %}
                             {% endif %}
                             {% endfor %}

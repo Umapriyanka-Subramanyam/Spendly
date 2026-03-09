@@ -77,10 +77,8 @@ def get_dashboard_stats(user):
 
 @bp.route('/')
 def index():
-    """Home page - redirect based on auth status."""
-    if not current_user.is_authenticated:
-        return redirect(url_for('auth.login'))
-    return redirect(url_for('main.dashboard_view'))
+    """Home page - always redirect to login."""
+    return redirect(url_for('auth.login'))
 
 @bp.route('/dashboard')
 @login_required
