@@ -8,8 +8,6 @@ from .models import Expense, ExpenseSplit, Member, EXPENSE_CATEGORIES
 
 bp = Blueprint('expenses', __name__, url_prefix='/expenses', template_folder='templates')
 
-# ===== SPLIT CALCULATION LOGIC =====
-
 def calculate_equal_split(total_amount: float, member_ids: list) -> dict:
     """Split amount equally among members."""
     if not member_ids:
@@ -35,8 +33,6 @@ def calculate_percentage_split(total_amount: float, percentages_dict: dict) -> d
         raise ValueError(f"Percentages must sum to 100, got {total_pct}")
     return {mid: float(Decimal(str(total_amount)) * Decimal(str(pct)) / 100) 
             for mid, pct in percentages_dict.items()}
-
-# ===== ROUTES =====
 
 @bp.route('/add', methods=['GET', 'POST'])
 @login_required

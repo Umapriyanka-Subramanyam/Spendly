@@ -3,9 +3,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, date, timedelta
 from .models import Expense, ExpenseSplit, Member, User
-from . import db
-
-# Simple in-memory cache for analytics results
+from . import db  
 _analytics_cache = {}
 
 def clear_cache(user_id=None):

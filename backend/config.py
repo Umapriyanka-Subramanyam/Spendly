@@ -5,7 +5,16 @@ from datetime import timedelta
 class Config:
     """Base configuration"""
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-spendly-2026')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///spendly.db'
+    
+    # Database configuration - supports both SQLite and PostgreSQL
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    if DATABASE_URL:
+        # Production: Use PostgreSQL from environment
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    else:
+        # Development: Use SQLite
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///spendly.db'
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Flask-Login
